@@ -1,252 +1,242 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Utang Piutang</title>
-
-<style>
-:root{
-  --blue:#2563eb;
-  --bg:#f4f6f8;
-  --card:#fff;
-  --border:#e5e7eb;
-  --plus:#16a34a;
-  --minus:#dc2626;
-  --muted:#6b7280;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:system-ui;
-  background:var(--bg);
-}
-.app{
-  max-width:420px;
-  margin:auto;
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-}
-header{text-align:center;padding:16px}
-main{flex:1;padding:16px}
-.card{
-  background:var(--card);
-  padding:16px;
-  border-radius:16px;
-}
-label{font-size:13px;font-weight:600;margin-top:12px;display:block}
-input,select,textarea{
-  width:100%;
-  padding:12px;
-  margin-top:6px;
-  border-radius:10px;
-  border:1px solid var(--border);
-}
-button{
-  width:100%;
-  padding:14px;
-  margin-top:16px;
-  border:none;
-  border-radius:12px;
-  background:var(--blue);
-  color:#fff;
-  font-weight:700;
-}
-.history{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-.col{
-  background:#f9fafb;
-  border-radius:14px;
-  padding:10px;
-}
-.total{text-align:center;font-weight:700;margin-bottom:8px}
-.item{
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:8px;
-  margin-bottom:6px;
-  font-size:13px;
-  position:relative;
-}
-.item small{color:var(--muted)}
-.menu{
-  position:absolute;
-  top:6px;
-  right:6px;
-  cursor:pointer;
-}
-.menu-box{
-  display:none;
-  position:absolute;
-  right:0;
-  top:22px;
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:8px;
-}
-.menu-box div{
-  padding:8px 12px;
-  cursor:pointer;
-}
-.menu-box div:hover{background:#f3f4f6}
-.plus{color:var(--plus)}
-.minus{color:var(--minus)}
-nav{
-  position:sticky;
-  bottom:0;
-  display:flex;
-  border-top:1px solid var(--border);
-  background:#fff;
-}
-nav button{
-  flex:1;
-  padding:14px;
-  border:none;
-  background:none;
-  font-weight:600;
-}
-.active{background:#eef2ff}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Utang Piutang - Njel & Ria</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f3f6f9; color: #1e293b; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .nav-fixed { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000; }
+        .nav-item { color: #94a3b8; text-align: center; flex: 1; transition: 0.3s; }
+        .nav-item.active { color: #2563eb; }
+        input, select, textarea { border: 1px solid #e2e8f0 !important; border-radius: 12px !important; padding: 12px !important; width: 100%; outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: #3b82f6 !important; ring: 2px rgba(59, 130, 246, 0.1); }
+        .btn-primary { background-color: #2563eb; color: white; border-radius: 12px; font-weight: 600; width: 100%; padding: 14px; transition: 0.2s; }
+        .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+        .card { background: white; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.02); }
+        .history-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 100px; }
+        .badge-minus { color: #ef4444; font-weight: 700; }
+        .badge-plus { color: #10b981; font-weight: 700; }
+        .timestamp-log { font-size: 8px; color: #94a3b8; margin-top: 4px; line-height: 1.4; }
+        .edited-mark { color: #3b82f6; font-style: italic; display: block; }
+    </style>
 </head>
+<body class="p-4">
 
-<body>
-<div class="app">
-
-<header>
-  <h2>Utang Piutang</h2>
-  <small>Njel & Ria</small>
-</header>
-
-<!-- HOME -->
-<main id="home">
-  <div class="card">
-    <label>Aksi</label>
-    <select id="type">
-      <option value="ria-utang">Ria utang Njel</option>
-      <option value="njel-utang">Njel utang Ria</option>
-      <option value="ria-bayar">Ria bayar Njel</option>
-      <option value="njel-bayar">Njel bayar Ria</option>
-    </select>
-
-    <label>Tanggal</label>
-    <input type="date" id="date">
-
-    <label>Jumlah</label>
-    <input type="number" id="amount">
-
-    <label>Catatan</label>
-    <textarea id="note"></textarea>
-
-    <button onclick="addTx()">Simpan Transaksi</button>
-  </div>
-</main>
-
-<!-- HISTORY -->
-<main id="history" style="display:none">
-  <div class="history">
-    <div class="col">
-      <h3>Njel</h3>
-      <div id="totalNjel" class="total"></div>
-      <div id="listNjel"></div>
-    </div>
-    <div class="col">
-      <h3>Ria</h3>
-      <div id="totalRia" class="total"></div>
-      <div id="listRia"></div>
-    </div>
-  </div>
-</main>
-
-<nav>
-  <button class="active" onclick="switchTab('home',this)">🏠 Home</button>
-  <button onclick="switchTab('history',this)">📜 History</button>
-</nav>
-
-</div>
-
-<script>
-let db = JSON.parse(localStorage.getItem("utangDB")) || {
-  saldo:{Njel:0,Ria:0},
-  transactions:[]
-};
-
-function save(){
-  localStorage.setItem("utangDB",JSON.stringify(db));
-  render();
-}
-
-function addTx(){
-  const amt = Number(amount.value);
-  if(!amt) return alert("Jumlah kosong");
-
-  const t = type.value;
-  const d = date.value || new Date().toISOString().slice(0,10);
-
-  let njel=0, ria=0, text="";
-
-  if(t==="ria-utang"){ ria-=amt; njel+=amt; text=`Ria utang Njel Rp${amt}`;}
-  if(t==="njel-utang"){ njel-=amt; ria+=amt; text=`Njel utang Ria Rp${amt}`;}
-  if(t==="ria-bayar"){ ria+=amt; njel-=amt; text=`Ria bayar Njel Rp${amt}`;}
-  if(t==="njel-bayar"){ njel+=amt; ria-=amt; text=`Njel bayar Ria Rp${amt}`;}
-
-  db.saldo.Njel+=njel;
-  db.saldo.Ria+=ria;
-
-  db.transactions.push({
-    id:Date.now(),
-    date:d,
-    text,
-    njel,
-    ria
-  });
-
-  amount.value="";
-  note.value="";
-  save();
-}
-
-function delTx(id){
-  const t = db.transactions.find(x=>x.id===id);
-  db.saldo.Njel-=t.njel;
-  db.saldo.Ria-=t.ria;
-  db.transactions=db.transactions.filter(x=>x.id!==id);
-  save();
-}
-
-function render(){
-  totalNjel.innerHTML=`<span class="${db.saldo.Njel>=0?'plus':'minus'}">${db.saldo.Njel}</span>`;
-  totalRia.innerHTML=`<span class="${db.saldo.Ria>=0?'plus':'minus'}">${db.saldo.Ria}</span>`;
-
-  listNjel.innerHTML="";
-  listRia.innerHTML="";
-
-  db.transactions.forEach(t=>{
-    const item = `
-      <div class="item">
-        <div class="menu" onclick="this.nextElementSibling.style.display='block'">⋮</div>
-        <div class="menu-box">
-          <div onclick="delTx(${t.id})">Hapus</div>
+    <div id="home" class="tab-content active mx-auto max-w-md">
+        <div class="text-center mb-8 mt-4">
+            <h1 class="text-2xl font-bold text-gray-900">CATATAN UTANG 2026</h1>
+            <p class="text-gray-500 text-sm italic">Njel & Ria</p>
         </div>
-        <small>${t.date}</small>${t.text}
-      </div>`;
-    if(t.njel!==0) listNjel.innerHTML+=item;
-    if(t.ria!==0) listRia.innerHTML+=item;
-  });
-}
 
-function switchTab(id,btn){
-  home.style.display=id==="home"?"block":"none";
-  history.style.display=id==="history"?"block":"none";
-  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
-}
+        <div class="card p-6">
+            <h2 id="form-title" class="text-xs font-bold text-blue-600 mb-4 hidden uppercase tracking-[0.2em]">Mode Edit</h2>
+            <input type="hidden" id="edit-id">
+            
+            <div class="mb-4">
+                <label class="block text-xs font-bold mb-2 text-gray-500 uppercase">Aksi</label>
+                <select id="aksi" class="bg-white">
+                    <option value="ria-utang">Ria utang Njel</option>
+                    <option value="njel-utang">Njel utang Ria</option>
+                    <option value="ria-bayar">Ria bayar Njel</option>
+                    <option value="njel-bayar">Njel bayar Ria</option>
+                </select>
+            </div>
 
-render();
-</script>
+            <div class="mb-4">
+                <label class="block text-xs font-bold mb-2 text-gray-500 uppercase">Tanggal</label>
+                <input type="date" id="tanggal">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-xs font-bold mb-2 text-gray-500 uppercase">Jumlah</label>
+                <input type="number" id="jumlah" placeholder="Contoh: 50000 (tanpa titik)">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-xs font-bold mb-2 text-gray-500 uppercase">Catatan</label>
+                <textarea id="catatan" rows="3" placeholder="Contoh: Makan Malem"></textarea>
+            </div>
+
+            <button id="btn-save" onclick="simpanData()" class="btn-primary shadow-lg shadow-blue-100">Simpan</button>
+            <button id="btn-cancel" onclick="resetForm()" class="mt-4 w-full text-xs text-gray-400 font-bold uppercase tracking-widest hidden">Batal Edit</button>
+        </div>
+    </div>
+
+    <div id="history" class="tab-content mx-auto max-w-2xl">
+        <h2 class="text-xl font-bold text-center mb-6 mt-4 text-blue-600">History</h2>
+        <div class="history-grid">
+            <div class="space-y-4">
+                <div class="bg-white p-4 rounded-2xl text-center border">
+                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Sisa Utang Njel</p>
+                    <h3 id="saldo-njel" class="text-lg font-bold tracking-tight">Rp 0</h3>
+                </div>
+                <div id="list-njel" class="space-y-3"></div>
+            </div>
+            <div class="space-y-4">
+                <div class="bg-white p-4 rounded-2xl text-center border">
+                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Sisa Utang Ria</p>
+                    <h3 id="saldo-ria" class="text-lg font-bold tracking-tight">Rp 0</h3>
+                </div>
+                <div id="list-ria" class="space-y-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="nav-fixed">
+        <button onclick="changeTab('home', this)" class="nav-item active">
+            <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            <span class="text-[9px] font-bold uppercase tracking-[0.1em]">Input</span>
+        </button>
+        <button onclick="changeTab('history', this)" class="nav-item">
+            <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+            <span class="text-[9px] font-bold uppercase tracking-[0.1em]">History</span>
+        </button>
+    </nav>
+
+    <script>
+        let db = JSON.parse(localStorage.getItem('utang_db_v2')) || [];
+
+        document.getElementById('tanggal').valueAsDate = new Date();
+
+        function changeTab(tabId, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            if(el) el.classList.add('active');
+            if(tabId === 'history') renderHistory();
+        }
+
+        function getNow() {
+            const n = new Date();
+            return `${n.getDate().toString().padStart(2,'0')}/${(n.getMonth()+1).toString().padStart(2,'0')}/${n.getFullYear()} ${n.getHours().toString().padStart(2,'0')}:${n.getMinutes().toString().padStart(2,'0')}`;
+        }
+
+        function simpanData() {
+            const editId = document.getElementById('edit-id').value;
+            const aksi = document.getElementById('aksi').value;
+            const tgl = document.getElementById('tanggal').value;
+            const jumlah = parseInt(document.getElementById('jumlah').value);
+            const catatan = document.getElementById('catatan').value;
+
+            if(!jumlah) return alert('Masukkan jumlah!');
+
+            let orang = ""; let nilai = 0;
+            if(aksi === 'ria-utang') { orang = "Ria"; nilai = -jumlah; }
+            else if(aksi === 'njel-utang') { orang = "Njel"; nilai = -jumlah; }
+            else if(aksi === 'ria-bayar') { orang = "Ria"; nilai = jumlah; }
+            else if(aksi === 'njel-bayar') { orang = "Njel"; nilai = jumlah; }
+
+            if(editId) {
+                const index = db.findIndex(i => i.id == editId);
+                // Pastikan array editLogs ada
+                if(!db[index].editLogs) db[index].editLogs = [];
+                // Tambahkan log baru tanpa menghapus yang lama
+                db[index].editLogs.push(getNow());
+                
+                db[index] = { ...db[index], orang, tgl, nilai, catatan };
+            } else {
+                const data = { 
+                    id: Date.now(), 
+                    orang, tgl, nilai, catatan, 
+                    createdAt: getNow(),
+                    editLogs: [] 
+                };
+                db.push(data);
+            }
+
+            localStorage.setItem('utang_db_v2', JSON.stringify(db));
+            resetForm();
+            if(editId) changeTab('history', document.querySelector('.nav-item:nth-child(2)'));
+            else alert('Tersimpan!');
+        }
+
+        function editData(id) {
+            const item = db.find(i => i.id == id);
+            document.getElementById('edit-id').value = item.id;
+            document.getElementById('tanggal').value = item.tgl;
+            document.getElementById('jumlah').value = Math.abs(item.nilai);
+            document.getElementById('catatan').value = item.catatan;
+            
+            let val = (item.orang === "Ria") ? (item.nilai < 0 ? "ria-utang" : "ria-bayar") : (item.nilai < 0 ? "njel-utang" : "njel-bayar");
+            document.getElementById('aksi').value = val;
+
+            document.getElementById('form-title').classList.remove('hidden');
+            document.getElementById('btn-cancel').classList.remove('hidden');
+            document.getElementById('btn-save').innerText = "Simpan Perubahan";
+            changeTab('home', document.querySelector('.nav-item:nth-child(1)'));
+        }
+
+        function resetForm() {
+            document.getElementById('edit-id').value = "";
+            document.getElementById('jumlah').value = "";
+            document.getElementById('catatan').value = "";
+            document.getElementById('form-title').classList.add('hidden');
+            document.getElementById('btn-cancel').classList.add('hidden');
+            document.getElementById('btn-save').innerText = "Simpan";
+            document.getElementById('tanggal').valueAsDate = new Date();
+        }
+
+        function renderHistory() {
+            const listNjel = document.getElementById('list-njel');
+            const listRia = document.getElementById('list-ria');
+            let sNjel = 0, sRia = 0;
+            listNjel.innerHTML = ""; listRia.innerHTML = "";
+
+            db.slice().sort((a,b) => b.id - a.id).forEach(item => {
+                // Generate deretan log edit
+                let logHtml = "";
+                if(item.editLogs && item.editLogs.length > 0) {
+                    item.editLogs.forEach(time => {
+                        logHtml += `<span class="edited-mark">(edited by: ${time})</span>`;
+                    });
+                }
+
+                const card = `
+                    <div class="bg-white p-3 rounded-xl border relative shadow-sm">
+                        <div class="flex justify-between items-start mb-1">
+                            <p class="text-[9px] text-gray-400 font-bold">${item.tgl}</p>
+                            <div class="flex gap-2">
+                                <button onclick="editData(${item.id})" class="text-blue-300">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                </button>
+                                <button onclick="hapus(${item.id})" class="text-gray-200">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-sm font-bold ${item.nilai < 0 ? 'badge-minus' : 'badge-plus'}">
+                            ${item.nilai < 0 ? '' : '+'}${item.nilai.toLocaleString()}
+                        </p>
+                        <p class="text-[10px] text-gray-600 font-medium leading-tight">${item.catatan || '-'}</p>
+                        <div class="timestamp-log">
+                            <div>In: ${item.createdAt}</div>
+                            ${logHtml}
+                        </div>
+                    </div>
+                `;
+
+                if(item.orang === "Njel") { listNjel.innerHTML += card; sNjel += item.nilai; }
+                else { listRia.innerHTML += card; sRia += item.nilai; }
+            });
+
+            document.getElementById('saldo-njel').innerText = "Rp " + sNjel.toLocaleString();
+            document.getElementById('saldo-ria').innerText = "Rp " + sRia.toLocaleString();
+            document.getElementById('saldo-njel').className = `text-lg font-bold ${sNjel < 0 ? 'text-red-500' : 'text-emerald-500'}`;
+            document.getElementById('saldo-ria').className = `text-lg font-bold ${sRia < 0 ? 'text-red-500' : 'text-emerald-500'}`;
+        }
+
+        function hapus(id) {
+            if(confirm('Hapus transaksi ini?')) {
+                db = db.filter(i => i.id !== id);
+                localStorage.setItem('utang_db_v2', JSON.stringify(db));
+                renderHistory();
+            }
+        }
+    </script>
 </body>
 </html>
