@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catat Utang Piutang</title>
+
+<style>
+:root{
+  --blue:#2563eb;
+  --bg:#f4f6f8;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --muted:#6b7280;
+  --plus:#16a34a;
+  --minus:#dc2626;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,sans-serif;
+  background:var(--bg);
+}
+
+.app{
+  max-width:420px;
+  margin:auto;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+header{
+  text-align:center;
+  padding:18px;
+}
+
+header h1{margin:0}
+header small{color:var(--muted)}
+
+main{flex:1;padding:16px}
+
+.card{
+  background:var(--card);
+  padding:16px;
+  border-radius:16px;
+}
+
+label{
+  font-size:13px;
+  font-weight:600;
+  margin-top:12px;
+  display:block;
+}
+
+input,select,textarea{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  margin-top:6px;
+}
+
+textarea{resize:none}
+
+button{
+  margin-top:16px;
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:var(--blue);
+  color:white;
+  font-weight:700;
+}
+
+.history{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.column{
+  background:#f9fafb;
+  padding:12px;
+  border-radius:14px;
+}
+
+.column h3{text-align:center;margin:0}
+.total{text-align:center;font-weight:700;margin-bottom:8px}
+
+.item{
+  background:white;
+  border:1px solid var(--border);
+  padding:8px;
+  border-radius:8px;
+  margin-bottom:6px;
+  font-size:13px;
+}
+
+.item small{color:var(--muted);display:block}
+
+.plus{color:var(--plus)}
+.minus{color:var(--minus)}
+
+nav{
+  display:flex;
+  border-top:1px solid var(--border);
+  background:white;
+}
+
+nav button{
+  flex:1;
+  background:none;
+  border:none;
+  padding:14px;
+  font-weight:600;
+}
+
+.active{background:#eef2ff}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<header>
+  <h1>Catat Utang Piutang</h1>
+  <small>Njel & Ria</small>
+</header>
+
+<!-- HOME -->
+<main id="home">
+  <div class="card">
+
+    <label>Aksi</label>
+    <select id="type">
+      <option value="ria-utang">Ria utang Njel</option>
+      <option value="njel-utang">Njel utang Ria</option>
+      <option value="ria-bayar">Ria bayar Njel</option>
+      <option value="njel-bayar">Njel bayar Ria</option>
+    </select>
+
+    <label>Tanggal</label>
+    <input type="date" id="date">
+
+    <label>Jumlah (Rp)</label>
+    <input type="number" id="amount" placeholder="50000">
+
+    <label>Catatan</label>
+    <textarea id="note" rows="2"></textarea>
+
+    <button onclick="saveTx()">Simpan Transaksi</button>
+  </div>
+</main>
+
+<!-- HISTORY -->
+<main id="history" style="display:none">
+  <div class="history">
+    <div class="column">
+      <h3>Njel</h3>
+      <div id="totalNjel" class="total"></div>
+      <div id="logNjel"></div>
+    </div>
+    <div class="column">
+      <h3>Ria</h3>
+      <div id="totalRia" class="total"></div>
+      <div id="logRia"></div>
+    </div>
+  </div>
+</main>
+
+<nav>
+  <button class="active" onclick="show('home',this)">🏠 Home</button>
+  <button onclick="show('history',this)">📜 History</button>
+</nav>
+
+</div>
+
+<script>
+const db = JSON.parse(localStorage.getItem("utangDB")) || {
+  saldo:{Njel:0,Ria:0},
+  history:[]
+};
+
+function save(){
+  localStorage.setItem("utangDB",JSON.stringify(db));
+  render();
+}
+
+function saveTx(){
+  const amt = Number(amount.value);
+  if(!amt) return alert("Jumlah kosong");
+
+  const t = type.value;
+  const d = date.value || new Date().toISOString().slice(0,10);
+  const n = note.value || "-";
+
+  let njel=0, ria=0, text="";
+
+  if(t==="ria-utang"){ ria-=amt; njel+=amt; text=`Ria utang Njel Rp${amt}`;}
+  if(t==="njel-utang"){ njel-=amt; ria+=amt; text=`Njel utang Ria Rp${amt}`;}
+  if(t==="ria-bayar"){ ria+=amt; njel-=amt; text=`Ria bayar Njel Rp${amt}`;}
+  if(t==="njel-bayar"){ njel+=amt; ria-=amt; text=`Njel bayar Ria Rp${amt}`;}
+
+  db.saldo.Njel+=njel;
+  db.saldo.Ria+=ria;
+
+  db.history.push({date:d,text,njel,ria});
+
+  amount.value="";
+  note.value="";
+  save();
+}
+
+function render(){
+  totalNjel.innerHTML=`Total: <span class="${db.saldo.Njel>=0?'plus':'minus'}">${db.saldo.Njel}</span>`;
+  totalRia.innerHTML=`Total: <span class="${db.saldo.Ria>=0?'plus':'minus'}">${db.saldo.Ria}</span>`;
+
+  logNjel.innerHTML="";
+  logRia.innerHTML="";
+
+  db.history.forEach(h=>{
+    if(h.njel!==0){
+      logNjel.innerHTML+=`
+        <div class="item">
+          <small>${h.date}</small>${h.text}
+        </div>`;
+    }
+    if(h.ria!==0){
+      logRia.innerHTML+=`
+        <div class="item">
+          <small>${h.date}</small>${h.text}
+        </div>`;
+    }
+  });
+}
+
+function show(id,btn){
+  home.style.display=id==="home"?"block":"none";
+  history.style.display=id==="history"?"block":"none";
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+render();
+</script>
+</body>
+</html>
