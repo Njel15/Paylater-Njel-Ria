@@ -1,100 +1,119 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Admin Upload GitHub</title>
     <style>
         * { box-sizing: border-box; }
-        body { font-family: sans-serif; background: #f0f2f5; padding: 15px; margin: 0; }
-        .card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
-        .btn-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        .opt { position: relative; border: 2px dashed #ccc; padding: 10px; text-align: center; border-radius: 8px; font-size: 13px; cursor: pointer; }
-        .opt input { position: absolute; opacity: 0; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer; }
-        .opt.active { border-color: #28a745; background: #eaffef; color: #28a745; border-style: solid; }
-        .btn-up { width: 100%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; }
-        .btn-up:disabled { background: #ccc; }
-        .status { text-align: center; font-size: 12px; margin-top: 8px; font-weight: bold; }
+        body { font-family: -apple-system, sans-serif; background: #f4f4f7; margin: 0; padding: 15px; }
+        .container { max-width: 500px; margin: auto; }
+        h2 { text-align: center; color: #333; margin-bottom: 20px; }
+        
+        .card { 
+            background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #ddd;
+        }
+        .card-header { font-weight: bold; font-size: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        
+        input[type="text"], input[type="number"] { 
+            width: 100%; padding: 12px; margin-bottom: 8px; border: 1px solid #ccc; 
+            border-radius: 8px; font-size: 16px; outline: none; 
+        }
+        input[type="file"] { margin-bottom: 10px; font-size: 14px; width: 100%; }
+
+        .btn-upload { 
+            width: 100%; padding: 14px; background: #007bff; color: white; border: none; 
+            border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer;
+        }
+        .btn-upload:disabled { background: #ccc; }
+        .btn-success { background: #28a745 !important; }
+        
+        .status-msg { text-align: center; font-size: 12px; margin-top: 8px; font-weight: bold; min-height: 15px; }
     </style>
 </head>
 <body>
 
-    <h2 style="text-align: center;">GitHub Admin Upload</h2>
+<div class="container">
+    <h2>Admin Catalog</h2>
     <div id="item-list"></div>
+</div>
 
 <script>
-    // MASUKKAN URL WEB APP GOOGLE KAMU DI SINI
-    const SCRIPT_URL = "GANTI_DENGAN_URL_WEB_APP_KAMU";
+    const itemList = document.getElementById('item-list');
 
-    const list = document.getElementById('item-list');
-    const selectedFiles = {};
-
+    // Membuat 10 baris input secara otomatis
     for (let i = 1; i <= 10; i++) {
-        list.innerHTML += `
+        itemList.innerHTML += `
             <div class="card">
-                <div style="margin-bottom:10px; font-weight:bold;">ITEM #${i} <span id="info${i}" style="color:red; font-weight:normal; font-size:11px;">No Photo</span></div>
+                <div class="card-header">ITEM #${i} <span id="info${i}" style="color:#888; font-weight:normal;">Ready</span></div>
+                <input type="file" id="file${i}" accept="image/*">
                 <input type="text" id="name${i}" placeholder="Product Name">
-                <input type="number" id="price${i}" placeholder="Price (Ex: 100000)">
-                <div class="btn-box">
-                    <div class="opt" id="optC${i}">📷 Camera <input type="file" accept="image/*" capture="environment" onchange="handleFile(${i}, this, 'C')"></div>
-                    <div class="opt" id="optG${i}">🖼️ Gallery <input type="file" accept="image/*" onchange="handleFile(${i}, this, 'G')"></div>
-                </div>
-                <button id="btn${i}" class="btn-up" onclick="uploadItem(${i})">UPLOAD ITEM #${i}</button>
-                <div id="msg${i}" class="status"></div>
+                <input type="number" id="price${i}" placeholder="Price (Ex: 150000)">
+                <button id="btn${i}" class="btn-upload" onclick="uploadSingle(${i})">UPLOAD ITEM #${i}</button>
+                <div id="msg${i}" class="status-msg"></div>
             </div>`;
     }
 
-    function handleFile(id, input, type) {
-        if (input.files && input.files[0]) {
-            selectedFiles[id] = input.files[0];
-            document.getElementById('info'+id).innerText = "Ready ✅";
-            document.getElementById('info'+id).style.color = "green";
-            document.getElementById('optC'+id).className = (type === 'C') ? 'opt active' : 'opt';
-            document.getElementById('optG'+id).className = (type === 'G') ? 'opt active' : 'opt';
+    async function uploadSingle(id) {
+        const fileInp = document.getElementById('file' + id);
+        const nameInp = document.getElementById('name' + id);
+        const priceInp = document.getElementById('price' + id);
+        const btn = document.getElementById('btn' + id);
+        const msg = document.getElementById('msg' + id);
+        const info = document.getElementById('info' + id);
+
+        const file = fileInp.files[0];
+        const name = nameInp.value;
+        const price = priceInp.value;
+
+        if (!file || !name || !price) {
+            alert("Please complete Item #" + id + " (File, Name, and Price)");
+            return;
         }
-    }
 
-    async function uploadItem(id) {
-        const name = document.getElementById('name'+id).value;
-        const price = document.getElementById('price'+id).value;
-        const file = selectedFiles[id];
-        const btn = document.getElementById('btn'+id);
-        const msg = document.getElementById('msg'+id);
-
-        if (!file || !name || !price) return alert("Fill all fields!");
-
+        // UI Loading
         btn.disabled = true;
         btn.innerText = "Uploading...";
-        msg.innerText = "Processing...";
+        msg.innerText = "Processing image...";
+        msg.style.color = "#007bff";
 
         try {
             const reader = new FileReader();
             reader.readAsDataURL(file);
-            reader.onload = async () => {
+            reader.onload = function() {
                 const base64 = reader.result;
-                const fileName = name.replace(/ /g, '_') + "_Price_" + price + ".jpg";
+                const fileName = name.replace(/\s+/g, '_') + "_Price_" + price + "_" + Date.now() + ".jpg";
 
-                const response = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ base64: base64, fileName: fileName })
-                });
-
-                const result = await response.json();
-                if (result.result === "OK") {
-                    btn.innerText = "SUCCESS ✅";
-                    btn.style.background = "#28a745";
-                    msg.innerText = "Successfully saved to Drive!";
-                } else {
-                    throw new Error(result.error);
-                }
+                google.script.run
+                    .withSuccessHandler(function(res) {
+                        if (res === "SUCCESS") {
+                            btn.innerText = "UPLOADED ✅";
+                            btn.className = "btn-upload btn-success";
+                            msg.innerText = "Successfully saved to Drive!";
+                            msg.style.color = "#28a745";
+                            info.innerText = "Uploaded ✅";
+                            info.style.color = "#28a745";
+                        } else {
+                            resetButton(btn, msg, res);
+                        }
+                    })
+                    .withFailureHandler(function(err) {
+                        resetButton(btn, msg, err);
+                    })
+                    .uploadFile(base64, fileName);
             };
         } catch (e) {
-            btn.disabled = false;
-            btn.innerText = "RETRY";
-            msg.innerText = "Error: " + e;
+            resetButton(btn, msg, e);
         }
     }
+
+    function resetButton(btn, msg, error) {
+        btn.disabled = false;
+        btn.innerText = "RETRY UPLOAD";
+        msg.innerText = "Error: " + error;
+        msg.style.color = "red";
+    }
 </script>
+
 </body>
 </html>
